@@ -17,11 +17,11 @@ namespace OS_practice_1
     {
         static void Main(string[] args)
         {
-            //First();
-            //Second();
-            //Third();
+            First();
+            Second();
+            Third();
             //Fourth();
-            Fifth();
+            //Fifth();
         }
         static void First()
         {
