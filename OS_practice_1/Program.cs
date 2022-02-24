@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
+using System.Xml;
 using System.IO.Compression;
 
 namespace OS_practice_1
@@ -20,8 +21,8 @@ namespace OS_practice_1
             First();
             Second();
             Third();
-            //Fourth();
-            //Fifth();
+            Fourth();
+            Fifth();
         }
         static void First()
         {
@@ -80,27 +81,73 @@ namespace OS_practice_1
                 Console.WriteLine(sr.ReadToEnd());
             }
 
-            FileInfo fileInf = new FileInfo(path);
-            fileInf.Delete();
+            File.Delete(path);
             Console.WriteLine();
         }
         static void Fourth()
         {
             Console.WriteLine("4.");
+            string path = "XMLfile.xml";
+            XmlDocument xd = new XmlDocument();
+            xd.Load("XMLfile.xml");
+
+            XmlElement rootElem = xd.DocumentElement;
+            XmlElement userElem = xd.CreateElement("user");
+            XmlElement nameElem = xd.CreateElement("name");
+            XmlElement companyElem = xd.CreateElement("company");
+            XmlElement ageElem = xd.CreateElement("age");
+
+            Console.Write("Введите имя: ");
+            XmlText nameText = xd.CreateTextNode(Console.ReadLine());
+            Console.Write("Введите название компании: ");
+            XmlText companyText = xd.CreateTextNode(Console.ReadLine());
+            Console.Write("Введите возраст: ");
+            XmlText ageText = xd.CreateTextNode(Console.ReadLine());
+
+            nameElem.AppendChild(nameText);
+            companyElem.AppendChild(companyText);
+            ageElem.AppendChild(ageText);
+            userElem.AppendChild(nameElem);
+            userElem.AppendChild(companyElem);
+            userElem.AppendChild(ageElem);
+            rootElem.AppendChild(userElem);
+            xd.Save("XMLfile.xml");
+
+            using (StreamReader sr = new StreamReader(path))
+            {
+                Console.WriteLine(sr.ReadToEnd());
+            }
+
+            File.Delete(path);
+            Console.WriteLine();
         }
         static void Fifth()
         {
             Console.WriteLine("5.");
-            Console.Write("Введите путь файла для добавление в архив: ");
-            string path = Console.ReadLine();
-
-            using (FileStream zf = new FileStream("ZIPfile.zip", FileMode.OpenOrCreate))
+            string zipPath = "ZIPfile.zip";
+            using (FileStream file = new FileStream(zipPath, FileMode.OpenOrCreate))
             {
-                using (ZipArchive archive = new ZipArchive(zf, ZipArchiveMode.Update))
+                using ZipArchive zipfile = new ZipArchive(file, ZipArchiveMode.Update);
+
+                string path = "";
+                while (!File.Exists(path))
                 {
-                    ZipArchiveEntry readmeEntry = archive.CreateEntry(path);
+                    Console.Write("Введите путь к файлу для добавление в архив: ");
+                    path = Console.ReadLine();
                 }
+
+                zipfile.CreateEntryFromFile(path, path.Substring(path.LastIndexOf('\\') + 1));
+
+                zipfile.ExtractToDirectory("fromZIPfile");
+
+                path = "fromZIPfile\\" + path.Substring(path.LastIndexOf('\\') + 1);
+                FileInfo fileInf = new FileInfo(path);
+                Console.WriteLine("Имя файла: {0}\nВремя создания: {1:F}\nРазмер: {2} байт", fileInf.Name, fileInf.CreationTime, fileInf.Length);
             }
+
+            Directory.Delete("fromZIPfile", true);
+            File.Delete(zipPath);
+            Console.WriteLine();
         }
     }
 }
